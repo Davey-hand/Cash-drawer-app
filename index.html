@@ -1,521 +1,398 @@
+
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <meta name="theme-color" content="#123b32">
-
-<title>Cash Drawer Reconciliation</title>
-
+<title>Cash Drawer</title>
 <style>
-
 *{box-sizing:border-box}
-
 body{margin:0;background:#f3f5f4;color:#202923;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
-
 header{background:#123b32;color:white;padding:24px 18px}
-
 header h1{font-size:24px;margin:0 0 6px}
-
 header p{margin:0;color:#d5e4dc;font-size:14px}
-
 main{max-width:650px;margin:auto;padding:15px}
-
 .card{background:white;border-radius:15px;padding:17px;margin-bottom:14px;box-shadow:0 2px 8px #0000000b}
-
 h2{font-size:18px;margin:0 0 14px}
-
 h3{font-size:15px;margin:16px 0 8px}
-
 label{display:block;font-size:13px;color:#526058;margin-bottom:5px}
-
 input{width:100%;padding:11px;border:1px solid #ccd5cf;border-radius:9px;font-size:16px;background:white;color:#202923}
-
-input[type=number]{min-width:0}
-
 .field{margin-bottom:12px}
-
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-
-.denom{display:grid;grid-template-columns:1fr 80px 82px;gap:8px;align-items:center;margin:9px 0}
-
+.denom{display:grid;grid-template-columns:1fr 75px 82px;gap:8px;align-items:center;margin:9px 0}
 .denom span{font-size:14px}
-
 .denom input{padding:9px;text-align:center}
-
 .denom strong{text-align:right;font-size:14px}
-
 .result{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #edf0ed;font-size:14px}
-
 .result:last-child{border:0}
-
 .big{font-size:24px;font-weight:750}
-
 .green{color:#187449}
-
 .red{color:#b42318}
-
 button{border:0;border-radius:10px;padding:13px 14px;font-size:15px;font-weight:650;cursor:pointer}
-
 .primary{background:#123b32;color:white;width:100%}
-
 .secondary{background:#e7eeea;color:#123b32}
-
 .danger{background:#fff0ee;color:#a5261c}
-
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}
-
-small,.muted{color:#65736a;font-size:12px}
-
+.actions,.history-actions{display:flex;gap:9px;margin-top:10px}
+.actions button{flex:1}
+.muted{color:#65736a;font-size:12px}
 .history-item{padding:12px 0;border-bottom:1px solid #e8ece9}
-
-.history-item:last-child{border:0}
-
 .history-head{display:flex;justify-content:space-between;gap:8px;align-items:center}
-
-.history-actions{display:flex;gap:7px;margin-top:9px}
-
 .history-actions button{padding:8px 12px;font-size:13px}
-
 .status{text-align:center;font-size:13px;color:#526058;margin:10px 0}
-
-@media(max-width:380px){.denom{grid-template-columns:1fr 64px 72px;gap:5px}.card{padding:13px}}
-
+@media(max-width:380px){.denom{grid-template-columns:1fr 62px 72px;gap:5px}.card{padding:13px}}
 </style>
-
 </head>
-
 <body>
-
 <header>
-
 <h1>Cash Drawer</h1>
-
 <p>Daily cash reconciliation</p>
-
 </header>
 
 <main>
-
 <div class="card">
-
 <h2>Daily Information</h2>
-
-<div class="field"><label for="date">Business date</label><input id="date" type="date"></div>
-
-<div class="field"><label for="start">Starting drawer balance ($)</label><input id="start" type="number" min="0" step=".01" value="226.75"></div>
-
+<div class="field">
+<label for="date">Business date</label>
+<input id="date" type="date">
+</div>
+<div class="field">
+<label for="start">Starting drawer balance ($)</label>
+<input id="start" type="number" min="0" step=".01" placeholder="Enter starting balance">
+</div>
 </div>
 
 <div class="card">
+<h2>Opening Drawer Setup</h2>
+<p>Prepare exactly <strong>$210.00</strong> before opening.</p>
+<div class="result"><span>10 × $10 bills</span><strong>$100.00</strong></div>
+<div class="result"><span>16 × $5 bills</span><strong>$80.00</strong></div>
+<div class="result"><span>30 × $1 bills</span><strong>$30.00</strong></div>
+<div class="result"><strong>Total opening bills</strong><strong>$210.00</strong></div>
+<p class="muted">Count these 56 bills into the drawer before opening. Enter the full starting drawer balance above, including any opening coins.</p>
+</div>
 
+<div class="card">
 <h2>Count Your Drawer</h2>
-
 <h3>Coins</h3>
-
 <div id="coins"></div>
-
 <div class="result"><span>Total coins</span><strong id="coinTotal">$0.00</strong></div>
-
 <h3>Bills</h3>
-
 <div id="bills"></div>
-
 <div class="field" style="margin-top:14px">
-
 <label for="misc">Miscellaneous bills ($)</label>
-
-<input id="misc" type="number" min="0" step=".01" value="0">
-
+<input id="misc" type="number" min="0" step=".01" placeholder="0.00">
 </div>
-
 <div class="result"><strong>Total bills</strong><strong id="billTotal">$0.00</strong></div>
-
 <div class="result"><strong>Total cash counted</strong><strong class="big" id="cashTotal">$0.00</strong></div>
-
 </div>
 
 <div class="card">
-
 <h2>Sales Reconciliation</h2>
-
-<div class="field"><label for="ticket">Amount collected on ticket ($)</label><input id="ticket" type="number" step=".01" value="0"></div>
-
-<div class="grid">
-
-<div class="field"><label for="credit">Credit card sales ($)</label><input id="credit" type="number" step=".01" value="0"></div>
-
-<div class="field"><label for="debit">Debit card sales ($)</label><input id="debit" type="number" step=".01" value="0"></div>
-
+<div class="field">
+<label for="ticket">Amount collected on ticket ($)</label>
+<input id="ticket" type="number" step=".01" placeholder="0.00">
 </div>
-
+<div class="grid">
+<div class="field">
+<label for="credit">Credit card sales ($)</label>
+<input id="credit" type="number" step=".01" placeholder="0.00">
+</div>
+<div class="field">
+<label for="debit">Debit card sales ($)</label>
+<input id="debit" type="number" step=".01" placeholder="0.00">
+</div>
+</div>
 <div class="result"><span>Total card sales</span><strong id="cardTotal">$0.00</strong></div>
-
 <div class="result"><span>Cash + card counted total</span><strong id="combined">$0.00</strong></div>
-
 <div class="result"><span>Cash collected (drawer less starting balance)</span><strong id="cashCollected">$0.00</strong></div>
-
-<div class="result"><span>Expected cash + card sales</span><strong id="expected">$0.00</strong></div>
-
+<div class="result"><span>Ticket amount</span><strong id="expected">$0.00</strong></div>
 <div class="result"><span>Difference vs. ticket</span><strong id="difference">$0.00</strong></div>
-
-<div class="result"><span>Drawer variance</span><strong class="big" id="variance">$0.00</strong></div>
-
+<div class="result"><span>Drawer variance</span><strong class="big" id="variance">$0.00 EVEN</strong></div>
 <p class="muted">Positive variance means over; negative variance means under.</p>
-
 </div>
 
 <div class="card">
-
 <h2>Tips</h2>
-
 <div class="grid">
-
-<div class="field"><label for="cashTips">Cash tips ($)</label><input id="cashTips" type="number" step=".01" value="0"></div>
-
-<div class="field"><label for="cardTips">Card tips ($)</label><input id="cardTips" type="number" step=".01" value="0"></div>
-
+<div class="field">
+<label for="cashTips">Cash tips ($)</label>
+<input id="cashTips" type="number" step=".01" placeholder="0.00">
 </div>
-
+<div class="field">
+<label for="cardTips">Card tips ($)</label>
+<input id="cardTips" type="number" step=".01" placeholder="0.00">
+</div>
+</div>
 <div class="result"><strong>Total tips</strong><strong class="big" id="tipsTotal">$0.00</strong></div>
-
 </div>
 
 <div class="card">
-
 <h2>Save This Day</h2>
-
-<div class="field"><label for="notes">Notes (optional)</label><input id="notes" type="text" placeholder="Shift notes"></div>
-
-<button class="primary" id="save">Save reconciliation</button>
-
-<div class="status" id="status"></div>
-
-<div class="actions">
-
-<button class="secondary" id="export">Export backup</button>
-
-<button class="secondary" id="importBtn">Import backup</button>
-
-<input id="importFile" type="file" accept="application/json,.json" hidden>
-
+<div class="field">
+<label for="notes">Notes (optional)</label>
+<input id="notes" type="text" placeholder="Shift notes">
 </div>
-
-<p class="muted">Your records are stored in this browser on this device. Export backups regularly so you don't lose them.</p>
-
+<button class="primary" id="save">Save reconciliation</button>
+<div class="status" id="status"></div>
+<div class="actions">
+<button class="secondary" id="export">Export backup</button>
+<button class="secondary" id="importBtn">Import backup</button>
+<input id="importFile" type="file" accept="application/json,.json" hidden>
+</div>
+<p class="muted">Records are stored in this browser on this device. Export backups regularly. Clearing browser data may erase saved records.</p>
 </div>
 
 <div class="card">
-
 <h2>Daily History</h2>
-
 <div id="history"><p class="muted">No saved days yet.</p></div>
-
 </div>
-
 </main>
 
 <script>
-
 const $=id=>document.getElementById(id);
-
-const money=n=>Number(n||0).toLocaleString("en-US",{style:"currency",currency:"USD"});
-
+const money=n=>(Number(n)||0).toLocaleString("en-US",{style:"currency",currency:"USD"});
 const num=id=>Number($(id).value)||0;
 
 const denominations=[
-
- {id:"penny",label:"Pennies",value:.01,type:"coin"},
-
- {id:"nickel",label:"Nickels",value:.05,type:"coin"},
-
- {id:"dime",label:"Dimes",value:.10,type:"coin"},
-
- {id:"quarter",label:"Quarters",value:.25,type:"coin"},
-
- {id:"one",label:"$1 bills",value:1,type:"bill"},
-
- {id:"five",label:"$5 bills",value:5,type:"bill"},
-
- {id:"ten",label:"$10 bills",value:10,type:"bill"},
-
- {id:"twenty",label:"$20 bills",value:20,type:"bill"}
-
+{id:"penny",label:"Pennies",value:.01,type:"coin"},
+{id:"nickel",label:"Nickels",value:.05,type:"coin"},
+{id:"dime",label:"Dimes",value:.10,type:"coin"},
+{id:"quarter",label:"Quarters",value:.25,type:"coin"},
+{id:"one",label:"$1 bills",value:1,type:"bill"},
+{id:"five",label:"$5 bills",value:5,type:"bill"},
+{id:"ten",label:"$10 bills",value:10,type:"bill"},
+{id:"twenty",label:"$20 bills",value:20,type:"bill"}
 ];
 
 let records=[];
-
-let editing=null;
+let editingDate=null;
 
 function buildCounts(){
-
  for(const d of denominations){
-
   const el=document.createElement("div");
-
   el.className="denom";
-
-  el.innerHTML=`<span>${d.label}</span><input id="count_${d.id}" type="number" min="0" step="1" value="0" aria-label="${d.label} count"><strong id="total_${d.id}">$0.00</strong>`;
-
+  const label=document.createElement("span");
+  label.textContent=d.label;
+  const input=document.createElement("input");
+  input.id="count_"+d.id;
+  input.type="number";
+  input.min="0";
+  input.step="1";
+  input.placeholder="0";
+  input.setAttribute("aria-label",d.label+" count");
+  const total=document.createElement("strong");
+  total.id="total_"+d.id;
+  total.textContent="$0.00";
+  el.append(label,input,total);
   $(d.type==="coin"?"coins":"bills").appendChild(el);
-
  }
-
 }
 
 function calculate(){
-
  let coins=0,bills=0;
-
  for(const d of denominations){
-
   const count=Math.max(0,Number($("count_"+d.id).value)||0);
-
   const amount=count*d.value;
-
   $("total_"+d.id).textContent=money(amount);
-
-  if(d.type==="coin")coins+=amount;else bills+=amount;
-
+  if(d.type==="coin")coins+=amount;
+  else bills+=amount;
  }
-
  bills+=num("misc");
-
  const cash=coins+bills;
-
  const cards=num("credit")+num("debit");
-
  const combined=cash+cards;
-
  const cashCollected=cash-num("start");
-
- const expected=num("ticket");
-
- const variance=combined-num("start")-expected;
+ const ticket=num("ticket");
+ const difference=cashCollected+cards-ticket;
+ const variance=difference;
 
  $("coinTotal").textContent=money(coins);
-
  $("billTotal").textContent=money(bills);
-
  $("cashTotal").textContent=money(cash);
-
  $("cardTotal").textContent=money(cards);
-
  $("combined").textContent=money(combined);
-
  $("cashCollected").textContent=money(cashCollected);
+ $("expected").textContent=money(ticket);
+ $("difference").textContent=money(difference);
 
- $("expected").textContent=money(expected);
-
- $("difference").textContent=money(cashCollected+cards-expected);
-
- $("variance").textContent=(variance<0?money(variance)+" UNDER":variance>0?money(variance)+" OVER":money(0)+" EVEN");
-
- $("variance").className="big "+(variance<-.005?"red":variance>.005?"green":"");
-
+ const v=$("variance");
+ v.textContent=Math.abs(variance)<.005?money(0)+" EVEN":money(variance)+(variance<0?" UNDER":" OVER");
+ v.className="big "+(variance<-.005?"red":variance>.005?"green":"");
  $("tipsTotal").textContent=money(num("cashTips")+num("cardTips"));
 
- return {coins,bills,cash,cards,combined,cashCollected,expected,variance};
-
+ return {coins,bills,cash,cards,combined,cashCollected,ticket,difference,variance};
 }
 
 function getData(){
-
- const c=calculate();
-
- const counts={};
-
+ const totals=calculate(),counts={};
  denominations.forEach(d=>counts[d.id]=Math.max(0,Number($("count_"+d.id).value)||0));
-
  return {
-
-  date:$("date").value,start:num("start"),counts,misc:num("misc"),
-
-  ticket:num("ticket"),credit:num("credit"),debit:num("debit"),
-
-  cashTips:num("cashTips"),cardTips:num("cardTips"),notes:$("notes").value,
-
-  ...c,savedAt:new Date().toISOString()
-
+  date:$("date").value,
+  start:num("start"),
+  counts,
+  misc:num("misc"),
+  ticket:num("ticket"),
+  credit:num("credit"),
+  debit:num("debit"),
+  cashTips:num("cashTips"),
+  cardTips:num("cardTips"),
+  notes:$("notes").value,
+  ...totals
  };
-
 }
 
 function loadData(r){
-
- $("date").value=r.date||today();
-
- $("start").value=r.start??0;
-
- denominations.forEach(d=>$("count_"+d.id).value=r.counts?.[d.id]??0);
-
- ["misc","ticket","credit","debit","cashTips","cardTips","notes"].forEach(k=>$(k).value=r[k]??0);
-
- editing=r.date||null;
-
+ $("date").value=r.date||"";
+ $("start").value=r.start??"";
+ denominations.forEach(d=>$("count_"+d.id).value=r.counts?.[d.id]??"");
+ ["misc","ticket","credit","debit","cashTips","cardTips"].forEach(k=>$(k).value=r[k]??"");
+ $("notes").value=r.notes||"";
+ editingDate=r.date||null;
  $("save").textContent="Update saved day";
-
+ $("status").textContent="Editing saved record.";
  calculate();
-
  window.scrollTo({top:0,behavior:"smooth"});
-
 }
-
-function today(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;}
 
 function renderHistory(){
-
- const host=$("history");host.innerHTML="";
-
- if(!records.length){host.innerHTML='<p class="muted">No saved days yet.</p>';return;}
-
+ const host=$("history");
+ host.innerHTML="";
+ if(!records.length){
+  host.innerHTML='<p class="muted">No saved days yet.</p>';
+  return;
+ }
  [...records].sort((a,b)=>b.date.localeCompare(a.date)).forEach(r=>{
-
-  const el=document.createElement("div");el.className="history-item";
-
-  const variance=r.variance;
-
-  const label=variance<-.005?"UNDER":variance>.005?"OVER":"EVEN";
-
-  const amount=money(Math.abs(variance));
-
-  const head=document.createElement("div");head.className="history-head";
-
+  const el=document.createElement("div");
+  el.className="history-item";
+  const v=Number(r.variance)||0;
+  const head=document.createElement("div");
+  head.className="history-head";
   const info=document.createElement("div");
-
-  const date=document.createElement("strong");date.textContent=r.date;
-
-  const sub=document.createElement("div");sub.className="muted";sub.textContent=`Cash ${money(r.cash)} · Cards ${money(r.cards)}`;
-
+  const date=document.createElement("strong");
+  date.textContent=r.date;
+  const sub=document.createElement("div");
+  sub.className="muted";
+  sub.textContent=`Cash ${money(r.cash)} · Cards ${money(r.cards)}`;
   info.append(date,sub);
-
-  const val=document.createElement("strong");val.className=variance<-.005?"red":variance>.005?"green":"";val.textContent=label==="EVEN"?"EVEN":`${amount} ${label}`;
-
-  head.append(info,val);el.append(head);
-
-  if(r.notes){const note=document.createElement("p");note.className="muted";note.textContent=r.notes;el.append(note);}
-
-  const actions=document.createElement("div");actions.className="history-actions";
-
-  const edit=document.createElement("button");edit.className="secondary";edit.textContent="Edit";edit.onclick=()=>loadData(r);
-
-  const del=document.createElement("button");del.className="danger";del.textContent="Delete";del.onclick=()=>{
-
-   if(confirm(`Delete the saved reconciliation for ${r.date}?`)){
-
-    records=records.filter(x=>x.date!==r.date);persist();renderHistory();
-
+  const value=document.createElement("strong");
+  value.className=v<-.005?"red":v>.005?"green":"";
+  value.textContent=Math.abs(v)<.005?"EVEN":money(v)+(v<0?" UNDER":" OVER");
+  head.append(info,value);
+  el.append(head);
+  if(r.notes){
+   const note=document.createElement("p");
+   note.className="muted";
+   note.textContent=r.notes;
+   el.append(note);
+  }
+  const actions=document.createElement("div");
+  actions.className="history-actions";
+  const edit=document.createElement("button");
+  edit.className="secondary";
+  edit.textContent="Edit";
+  edit.onclick=()=>loadData(r);
+  const del=document.createElement("button");
+  del.className="danger";
+  del.textContent="Delete";
+  del.onclick=()=>{
+   if(confirm("Delete the saved reconciliation for "+r.date+"?")){
+    records=records.filter(x=>x.date!==r.date);
+    persist();
+    renderHistory();
    }
-
   };
-
-  actions.append(edit,del);el.append(actions);host.append(el);
-
+  actions.append(edit,del);
+  el.append(actions);
+  host.append(el);
  });
-
 }
 
-function persist(){try{localStorage.setItem("cashDrawerRecords",JSON.stringify(records));}catch(e){alert("Could not save data in this browser. Export a backup and check device storage.");}}
+function persist(){
+ try{localStorage.setItem("cashDrawerRecords",JSON.stringify(records));}
+ catch(e){alert("Could not save data. Export a backup and check device storage.");}
+}
 
-function resetForm(){
-
- editing=null;$("save").textContent="Save reconciliation";
-
- $("date").value=today();
-
- $("start").value=records.length?Math.round((210+(records.find(r=>r.date===records.map(x=>x.date).sort().pop())?.coins||0))*100)/100:226.75;
-
- denominations.forEach(d=>$("count_"+d.id).value=0);
-
- ["misc","ticket","credit","debit","cashTips","cardTips"].forEach(k=>$(k).value=0);
-
- $("notes").value="";calculate();
-
+function clearForm(){
+ editingDate=null;
+ $("date").value="";
+ $("start").value="";
+ denominations.forEach(d=>$("count_"+d.id).value="");
+ ["misc","ticket","credit","debit","cashTips","cardTips"].forEach(k=>$(k).value="");
+ $("notes").value="";
+ $("save").textContent="Save reconciliation";
+ $("status").textContent="Ready for a new reconciliation.";
+ calculate();
 }
 
 buildCounts();
 
-$("date").value=today();
+try{
+ const saved=JSON.parse(localStorage.getItem("cashDrawerRecords")||"[]");
+ records=Array.isArray(saved)?saved:[];
+}catch(e){records=[];}
 
-try{records=JSON.parse(localStorage.getItem("cashDrawerRecords")||"[]");}catch(e){records=[];}
+/* Always start with a blank form. Saved records remain in Daily History. */
+clearForm();
+renderHistory();
 
-if(records.length){
-
- const latest=[...records].sort((a,b)=>b.date.localeCompare(a.date))[0];
-
- $("start").value=Math.round((210+(latest.coins||0))*100)/100;
-
-}
-
-document.querySelectorAll("input").forEach(el=>el.addEventListener("input",calculate));
+document.querySelectorAll("input").forEach(el=>{
+ el.addEventListener("input",calculate);
+});
 
 $("save").onclick=()=>{
-
  const r=getData();
-
- if(!r.date){alert("Choose a business date first.");return;}
-
+ if(!r.date){
+  alert("Please enter the business date.");
+  return;
+ }
+ if($("start").value.trim()===""){
+  alert("Please enter the starting drawer balance.");
+  return;
+ }
  const idx=records.findIndex(x=>x.date===r.date);
-
- if(idx>=0&&editing!==r.date&&!confirm("A record for this date already exists. Replace it?"))return;
-
- if(idx>=0)records[idx]=r;else records.push(r);
-
- persist();renderHistory();
-
- $("status").textContent=`Saved ${r.date}.`;
-
- resetForm();
-
+ if(idx>=0&&editingDate!==r.date&&!confirm("A record for this date already exists. Replace it?"))return;
+ if(idx>=0)records[idx]=r;
+ else records.push(r);
+ persist();
+ renderHistory();
+ $("status").textContent="Saved "+r.date+".";
+ clearForm();
 };
 
 $("export").onclick=()=>{
-
  const blob=new Blob([JSON.stringify(records,null,2)],{type:"application/json"});
-
  const url=URL.createObjectURL(blob);
-
- const a=document.createElement("a");a.href=url;a.download="cash-drawer-backup.json";a.click();
-
+ const a=document.createElement("a");
+ a.href=url;
+ a.download="cash-drawer-backup.json";
+ a.click();
  setTimeout(()=>URL.revokeObjectURL(url),1000);
-
 };
 
 $("importBtn").onclick=()=>$("importFile").click();
 
 $("importFile").onchange=async e=>{
-
- const file=e.target.files[0];if(!file)return;
-
+ const file=e.target.files[0];
+ if(!file)return;
  try{
-
   const data=JSON.parse(await file.text());
-
   if(!Array.isArray(data))throw new Error("Invalid backup");
-
-  if(confirm("Import this backup? It will merge records by date with your existing history.")){
-
-   for(const r of data){const i=records.findIndex(x=>x.date===r.date);if(i>=0)records[i]=r;else records.push(r);}
-
-   persist();renderHistory();alert("Backup imported.");
-
+  if(confirm("Import this backup? Records will be merged by date.")){
+   for(const r of data){
+    const i=records.findIndex(x=>x.date===r.date);
+    if(i>=0)records[i]=r;
+    else records.push(r);
+   }
+   persist();
+   renderHistory();
+   alert("Backup imported.");
   }
-
- }catch(err){alert("That file could not be read as a cash drawer backup.");}
-
+ }catch(err){
+  alert("That file could not be read as a cash drawer backup.");
+ }
  e.target.value="";
-
 };
-
-renderHistory();calculate();
-
 </script>
-
 </body>
-
 </html>
