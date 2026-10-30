@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -137,7 +138,7 @@ button{border:0;border-radius:10px;padding:13px 14px;font-size:15px;font-weight:
   <section class="card">
     <h2>Coin Rolls Added for Tomorrow</h2>
     <p>Did you add any rolls of coins to prepare tomorrow's opening drawer?</p>
-    <p class="muted">Enter the number of rolls you added. Leave a field at zero if you did not add that type.</p>
+    <p class="muted">Enter the number of rolls you added.</p>
 
     <div class="roll-row">
       <div><strong>Pennies</strong><div class="muted">$0.50 per roll</div></div>
@@ -156,7 +157,6 @@ button{border:0;border-radius:10px;padding:13px 14px;font-size:15px;font-weight:
       <input id="rollQuarters" type="number" min="0" step="1" value="0" aria-label="Number of quarter rolls">
     </div>
     <div class="result"><strong>Total value of rolls added</strong><strong class="big" id="rollTotal">$0.00</strong></div>
-    <p class="muted">Only enter rolls actually added to tomorrow's drawer. These amounts are added to the opening drawer calculation below.</p>
   </section>
 
   <section class="card opening">
@@ -166,7 +166,7 @@ button{border:0;border-radius:10px;padding:13px 14px;font-size:15px;font-weight:
     <div class="result"><span>Coins counted today</span><strong id="tomorrowCoins">$0.00</strong></div>
     <div class="result"><span>Coin rolls added</span><strong id="tomorrowRolls">$0.00</strong></div>
     <div class="result"><strong>Total opening drawer for tomorrow</strong><strong class="big" id="tomorrowTotal">$210.00</strong></div>
-    <p class="muted">This assumes all coins counted today stay in the drawer tomorrow. If you remove some coins, subtract their value from the carryover amount when preparing the drawer.</p>
+    <p class="muted">This assumes all coins counted today stay in the drawer tomorrow.</p>
   </section>
 
   <section class="card">
@@ -188,9 +188,7 @@ button{border:0;border-radius:10px;padding:13px 14px;font-size:15px;font-weight:
     </div>
 
     <p class="muted">
-      Your records are saved in this browser. On a Windows computer using Chrome or Edge,
-      connect a text file in your Counting folder to update it whenever you save a day.
-      The text file is organized by date and can be opened in Notepad.
+      Connect a text file in your Counting folder to update it whenever you save a day.
       Export a backup occasionally to protect your records.
     </p>
   </section>
@@ -207,8 +205,8 @@ button{border:0;border-radius:10px;padding:13px 14px;font-size:15px;font-weight:
 const $ = id => document.getElementById(id);
 
 const money = n => (Number(n) || 0).toLocaleString("en-US", {
-  style: "currency",
-  currency: "USD"
+  style:"currency",
+  currency:"USD"
 });
 
 const num = id => Number($(id).value) || 0;
@@ -225,10 +223,10 @@ const denominations = [
 ];
 
 const coinRolls = [
-  {id:"rollPennies",label:"Penny rolls",value:0.50},
-  {id:"rollNickels",label:"Nickel rolls",value:2.00},
-  {id:"rollDimes",label:"Dime rolls",value:5.00},
-  {id:"rollQuarters",label:"Quarter rolls",value:10.00}
+  {id:"rollPennies",value:0.50},
+  {id:"rollNickels",value:2.00},
+  {id:"rollDimes",value:5.00},
+  {id:"rollQuarters",value:10.00}
 ];
 
 let records = [];
@@ -256,7 +254,7 @@ function buildCounts() {
     total.id = "total_" + d.id;
     total.textContent = "$0.00";
 
-    row.append(label, input, total);
+    row.append(label,input,total);
     $(d.type === "coin" ? "coins" : "bills").appendChild(row);
   });
 }
@@ -266,7 +264,7 @@ function calculate() {
   let bills = 0;
 
   denominations.forEach(d => {
-    const count = Math.max(0, Math.floor(Number($("count_" + d.id).value) || 0));
+    const count = Math.max(0,Math.floor(Number($("count_" + d.id).value)||0));
     const amount = count * d.value;
 
     $("total_" + d.id).textContent = money(amount);
@@ -305,8 +303,9 @@ function calculate() {
   $("tipsTotal").textContent = money(num("cashTips") + num("cardTips"));
 
   let rollTotal = 0;
+
   coinRolls.forEach(r => {
-    rollTotal += Math.max(0, Math.floor(Number($(r.id).value) || 0)) * r.value;
+    rollTotal += Math.max(0,Math.floor(Number($(r.id).value)||0)) * r.value;
   });
 
   rollTotal = Math.round(rollTotal * 100) / 100;
@@ -324,12 +323,12 @@ function calculate() {
     cashCollected,
     ticket,
     variance,
-    rollPennies: Math.max(0, Math.floor(num("rollPennies"))),
-    rollNickels: Math.max(0, Math.floor(num("rollNickels"))),
-    rollDimes: Math.max(0, Math.floor(num("rollDimes"))),
-    rollQuarters: Math.max(0, Math.floor(num("rollQuarters"))),
+    rollPennies:Math.max(0,Math.floor(num("rollPennies"))),
+    rollNickels:Math.max(0,Math.floor(num("rollNickels"))),
+    rollDimes:Math.max(0,Math.floor(num("rollDimes"))),
+    rollQuarters:Math.max(0,Math.floor(num("rollQuarters"))),
     rollTotal,
-    tomorrowOpeningTotal: Math.round((210 + coins + rollTotal) * 100) / 100
+    tomorrowOpeningTotal:Math.round((210 + coins + rollTotal)*100)/100
   };
 }
 
@@ -338,20 +337,20 @@ function getData() {
   const counts = {};
 
   denominations.forEach(d => {
-    counts[d.id] = Math.max(0, Math.floor(Number($("count_" + d.id).value) || 0));
+    counts[d.id] = Math.max(0,Math.floor(Number($("count_" + d.id).value)||0));
   });
 
   return {
-    date: $("date").value,
-    start: num("start"),
+    date:$("date").value,
+    start:num("start"),
     counts,
-    misc: num("misc"),
-    ticket: num("ticket"),
-    credit: num("credit"),
-    debit: num("debit"),
-    cashTips: num("cashTips"),
-    cardTips: num("cardTips"),
-    notes: $("notes").value,
+    misc:num("misc"),
+    ticket:num("ticket"),
+    credit:num("credit"),
+    debit:num("debit"),
+    cashTips:num("cashTips"),
+    cardTips:num("cardTips"),
+    notes:$("notes").value,
     ...totals
   };
 }
@@ -364,7 +363,7 @@ function loadData(r) {
     $("count_" + d.id).value = r.counts?.[d.id] ?? "";
   });
 
-  ["misc", "ticket", "credit", "debit", "cashTips", "cardTips"].forEach(k => {
+  ["misc","ticket","credit","debit","cashTips","cardTips"].forEach(k => {
     $(k).value = r[k] ?? "";
   });
 
@@ -390,8 +389,7 @@ function renderHistory() {
     return;
   }
 
-  [...records]
-    .sort((a,b) => String(b.date).localeCompare(String(a.date)))
+  [...records].sort((a,b)=>String(b.date).localeCompare(String(a.date)))
     .forEach(r => {
       const item = document.createElement("div");
       item.className = "history-item";
@@ -408,16 +406,16 @@ function renderHistory() {
       summary.textContent =
         `Cash ${money(r.cash)} · Cards ${money(r.cards)} · Rolls ${money(r.rollTotal)}`;
 
-      info.append(date, summary);
+      info.append(date,summary);
 
-      const v = Number(r.variance) || 0;
+      const v = Number(r.variance)||0;
       const result = document.createElement("strong");
       result.className = v < -0.005 ? "red" : v > 0.005 ? "green" : "";
-      result.textContent = Math.abs(v) < 0.005
+      result.textContent = Math.abs(v)<0.005
         ? "EVEN"
-        : money(v) + (v < 0 ? " UNDER" : " OVER");
+        : money(v)+(v<0?" UNDER":" OVER");
 
-      head.append(info, result);
+      head.append(info,result);
       item.append(head);
 
       if (r.notes) {
@@ -439,16 +437,16 @@ function renderHistory() {
       del.className = "danger";
       del.textContent = "Delete";
       del.onclick = async () => {
-        if (!confirm("Delete the saved reconciliation for " + r.date + "?")) return;
+        if (!confirm("Delete the saved reconciliation for "+r.date+"?")) return;
 
-        records = records.filter(x => x.date !== r.date);
+        records = records.filter(x=>x.date!==r.date);
         persist();
         renderHistory();
-        $("status").textContent = "Deleted " + r.date + ".";
+        $("status").textContent = "Deleted "+r.date+".";
         await writeTextFile();
       };
 
-      actions.append(edit, del);
+      actions.append(edit,del);
       item.append(actions);
       host.append(item);
     });
@@ -458,10 +456,11 @@ function formatDate(dateString) {
   if (!dateString) return "Undated";
 
   const parts = dateString.split("-").map(Number);
-  if (parts.length !== 3 || parts.some(n => !n)) return dateString;
+  if (parts.length !== 3 || parts.some(n=>!n)) return dateString;
 
-  const date = new Date(parts[0], parts[1] - 1, parts[2]);
-  return date.toLocaleDateString("en-US", {
+  const date = new Date(parts[0],parts[1]-1,parts[2]);
+
+  return date.toLocaleDateString("en-US",{
     weekday:"long",
     year:"numeric",
     month:"long",
@@ -469,97 +468,142 @@ function formatDate(dateString) {
   });
 }
 
+function nextCalendarDate(dateString) {
+  const [year,month,day] = dateString.split("-").map(Number);
+  const date = new Date(year,month-1,day+1);
+
+  return [
+    date.getFullYear(),
+    String(date.getMonth()+1).padStart(2,"0"),
+    String(date.getDate()).padStart(2,"0")
+  ].join("-");
+}
+
+function previousCalendarDate(dateString) {
+  const [year,month,day] = dateString.split("-").map(Number);
+  const date = new Date(year,month-1,day-1);
+
+  return [
+    date.getFullYear(),
+    String(date.getMonth()+1).padStart(2,"0"),
+    String(date.getDate()).padStart(2,"0")
+  ].join("-");
+}
+
+/*
+  When the user chooses a date, look for the saved
+  reconciliation from the previous calendar day.
+  If it exists, automatically fill the starting balance.
+  The date remains fully selectable.
+*/
+function fillStartingBalanceForDate(dateString) {
+  if (!dateString) return;
+
+  const previousDate = previousCalendarDate(dateString);
+  const previousRecord = records.find(r=>r.date===previousDate);
+
+  if (previousRecord) {
+    const balance = Number(previousRecord.tomorrowOpeningTotal);
+
+    if (Number.isFinite(balance)) {
+      $("start").value = balance.toFixed(2);
+      calculate();
+      $("status").textContent =
+        "Starting balance carried forward from "+previousDate+".";
+    }
+  }
+}
+
 function reportForDay(r) {
   const line = "=".repeat(64);
   const divider = "-".repeat(64);
-  const count = id => Number(r.counts?.[id]) || 0;
-  const roll = id => Number(r[id]) || 0;
+  const count = id => Number(r.counts?.[id])||0;
+  const roll = id => Number(r[id])||0;
 
-  const variance = Number(r.variance) || 0;
-  const varianceText = Math.abs(variance) < 0.005
+  const variance = Number(r.variance)||0;
+  const varianceText = Math.abs(variance)<0.005
     ? "$0.00 EVEN"
-    : money(variance) + (variance < 0 ? " UNDER" : " OVER");
+    : money(variance)+(variance<0?" UNDER":" OVER");
 
-  const lines = [
+  return [
     line,
     "                    CASH DRAWER DAILY REPORT",
     line,
     "",
-    "BUSINESS DATE: " + formatDate(r.date),
+    "BUSINESS DATE: "+formatDate(r.date),
     "",
     divider,
     "1. DRAWER COUNTS",
     divider,
-    "Starting Drawer Balance ................. " + money(r.start),
+    "Starting Drawer Balance ................. "+money(r.start),
     "",
     "COINS",
-    "Pennies:  " + count("penny"),
-    "Nickels:  " + count("nickel"),
-    "Dimes:    " + count("dime"),
-    "Quarters: " + count("quarter"),
-    "Total Coins ............................ " + money(r.coins),
+    "Pennies:  "+count("penny"),
+    "Nickels:  "+count("nickel"),
+    "Dimes:    "+count("dime"),
+    "Quarters: "+count("quarter"),
+    "Total Coins ............................ "+money(r.coins),
     "",
     "BILLS",
-    "$1 bills:  " + count("one"),
-    "$5 bills:  " + count("five"),
-    "$10 bills: " + count("ten"),
-    "$20 bills: " + count("twenty"),
-    "Miscellaneous Bills .................... " + money(r.misc),
-    "Total Bills ............................ " + money(r.bills),
-    "TOTAL CASH COUNTED ..................... " + money(r.cash),
+    "$1 bills:  "+count("one"),
+    "$5 bills:  "+count("five"),
+    "$10 bills: "+count("ten"),
+    "$20 bills: "+count("twenty"),
+    "Miscellaneous Bills .................... "+money(r.misc),
+    "Total Bills ............................ "+money(r.bills),
+    "TOTAL CASH COUNTED ..................... "+money(r.cash),
     "",
     divider,
     "2. SALES RECONCILIATION",
     divider,
-    "Cash Collected .......................... " + money(r.cashCollected),
-    "Credit Sales ............................ " + money(r.credit),
-    "Debit Sales ............................. " + money(r.debit),
-    "Total Card Sales ........................ " + money(r.cards),
-    "Cash Collected + Card Sales ............. " + money(r.cashCollected + r.cards),
-    "Ticket Amount .......................... " + money(r.ticket),
-    "Difference ............................. " + money(r.variance),
-    "DRAWER VARIANCE ......................... " + varianceText,
+    "Cash Collected .......................... "+money(r.cashCollected),
+    "Credit Sales ............................ "+money(r.credit),
+    "Debit Sales ............................. "+money(r.debit),
+    "Total Card Sales ........................ "+money(r.cards),
+    "Cash Collected + Card Sales ............. "+money(r.cashCollected+r.cards),
+    "Ticket Amount .......................... "+money(r.ticket),
+    "Difference ............................. "+money(r.variance),
+    "DRAWER VARIANCE ......................... "+varianceText,
     "",
     divider,
     "3. TIPS",
     divider,
-    "Cash Tips ............................... " + money(r.cashTips),
-    "Card Tips ............................... " + money(r.cardTips),
-    "TOTAL TIPS .............................. " + money((Number(r.cashTips)||0) + (Number(r.cardTips)||0)),
+    "Cash Tips ............................... "+money(r.cashTips),
+    "Card Tips ............................... "+money(r.cardTips),
+    "TOTAL TIPS .............................. "+
+      money((Number(r.cashTips)||0)+(Number(r.cardTips)||0)),
     "",
     divider,
     "4. COIN ROLLS ADDED",
     divider,
-    "Pennies:  " + roll("rollPennies") + " roll(s)  (" + money(roll("rollPennies") * 0.50) + ")",
-    "Nickels:  " + roll("rollNickels") + " roll(s)  (" + money(roll("rollNickels") * 2) + ")",
-    "Dimes:    " + roll("rollDimes") + " roll(s)  (" + money(roll("rollDimes") * 5) + ")",
-    "Quarters: " + roll("rollQuarters") + " roll(s)  (" + money(roll("rollQuarters") * 10) + ")",
-    "Total Value of Rolls Added .............. " + money(r.rollTotal),
+    "Pennies:  "+roll("rollPennies")+" roll(s) ("+money(roll("rollPennies")*0.50)+")",
+    "Nickels:  "+roll("rollNickels")+" roll(s) ("+money(roll("rollNickels")*2)+")",
+    "Dimes:    "+roll("rollDimes")+" roll(s) ("+money(roll("rollDimes")*5)+")",
+    "Quarters: "+roll("rollQuarters")+" roll(s) ("+money(roll("rollQuarters")*10)+")",
+    "Total Value of Rolls Added .............. "+money(r.rollTotal),
     "",
     divider,
     "5. NEXT DAY OPENING DRAWER",
     divider,
     "Opening Bills ........................... $210.00",
-    "Coins Counted Today ..................... " + money(r.coins),
-    "Coin Rolls Added ........................ " + money(r.rollTotal),
-    "NEXT DAY OPENING BALANCE ................ " + money(r.tomorrowOpeningTotal),
+    "Coins Counted Today ..................... "+money(r.coins),
+    "Coin Rolls Added ........................ "+money(r.rollTotal),
+    "NEXT DAY OPENING BALANCE ................ "+money(r.tomorrowOpeningTotal),
     "",
     divider,
     "6. NOTES",
     divider,
-    r.notes ? r.notes : "No notes entered.",
+    r.notes||"No notes entered.",
     "",
-    "Report saved for: " + (r.date || "Undated"),
+    "Report saved for: "+(r.date||"Undated"),
     line,
     "",
     ""
-  ];
-
-  return lines.join("\r\n");
+  ].join("\r\n");
 }
 
 function generateTextFile() {
-  const ordered = [...records].sort((a,b) =>
+  const ordered = [...records].sort((a,b)=>
     String(a.date).localeCompare(String(b.date))
   );
 
@@ -569,7 +613,7 @@ function generateTextFile() {
 
   return [
     "CASH DRAWER — DAILY RECONCILIATION RECORDS",
-    "Generated: " + new Date().toLocaleString("en-US"),
+    "Generated: "+new Date().toLocaleString("en-US"),
     "Reports are listed from oldest to newest.",
     "",
     ...ordered.map(reportForDay)
@@ -578,8 +622,8 @@ function generateTextFile() {
 
 function persist() {
   try {
-    localStorage.setItem("cashDrawerRecords", JSON.stringify(records));
-  } catch (e) {
+    localStorage.setItem("cashDrawerRecords",JSON.stringify(records));
+  } catch(e) {
     alert("Could not save in this browser. Please export a backup and check device storage.");
   }
 }
@@ -589,16 +633,17 @@ async function writeTextFile() {
 
   const snapshot = generateTextFile();
 
-  fileWriteQueue = fileWriteQueue.then(async () => {
+  fileWriteQueue = fileWriteQueue.then(async()=>{
     try {
       const writable = await textFileHandle.createWritable();
       await writable.write(snapshot);
       await writable.close();
-      $("status").textContent = "Saved in browser and updated CashDrawer.txt.";
-    } catch (e) {
+      $("status").textContent =
+        "Saved in browser and updated CashDrawer.txt.";
+    } catch(e) {
       $("status").textContent =
         "Saved in browser, but the text file could not be updated. Reconnect the text file.";
-      console.error("Text file write failed:", e);
+      console.error("Text file write failed:",e);
     }
   });
 
@@ -615,10 +660,10 @@ async function connectTextFile() {
 
   try {
     const handle = await window.showSaveFilePicker({
-      suggestedName: "CashDrawer.txt",
-      types: [{
-        description: "Text file",
-        accept: {"text/plain":[".txt"]}
+      suggestedName:"CashDrawer.txt",
+      types:[{
+        description:"Text file",
+        accept:{"text/plain":[".txt"]}
       }]
     });
 
@@ -628,10 +673,10 @@ async function connectTextFile() {
       "Text file connected. Saving a day will update this file.";
 
     await writeTextFile();
-  } catch (e) {
-    if (e.name !== "AbortError") {
+  } catch(e) {
+    if (e.name!=="AbortError") {
       console.error(e);
-      alert("Could not connect to the text file. Please try again in Chrome or Edge.");
+      alert("Could not connect to the text file. Please try again.");
     }
   }
 }
@@ -642,32 +687,33 @@ function clearForm() {
   $("date").value = "";
   $("start").value = "";
 
-  denominations.forEach(d => {
-    $("count_" + d.id).value = "";
+  denominations.forEach(d=>{
+    $("count_"+d.id).value = "";
   });
 
-  ["misc", "ticket", "credit", "debit", "cashTips", "cardTips"].forEach(k => {
+  ["misc","ticket","credit","debit","cashTips","cardTips"].forEach(k=>{
     $(k).value = "";
   });
 
-  coinRolls.forEach(r => {
+  coinRolls.forEach(r=>{
     $(r.id).value = "0";
   });
 
   $("notes").value = "";
   $("save").textContent = "Save reconciliation";
+
   calculate();
 }
 
-function mergeByDate(existing, incoming) {
+function mergeByDate(existing,incoming) {
   const map = new Map();
 
-  existing.forEach(r => {
-    if (r && r.date) map.set(r.date, r);
+  existing.forEach(r=>{
+    if (r && r.date) map.set(r.date,r);
   });
 
-  incoming.forEach(r => {
-    if (r && r.date) map.set(r.date, r);
+  incoming.forEach(r=>{
+    if (r && r.date) map.set(r.date,r);
   });
 
   return [...map.values()];
@@ -676,22 +722,31 @@ function mergeByDate(existing, incoming) {
 buildCounts();
 
 try {
-  const saved = JSON.parse(localStorage.getItem("cashDrawerRecords") || "[]");
-  records = Array.isArray(saved) ? saved : [];
-} catch (e) {
+  const saved = JSON.parse(localStorage.getItem("cashDrawerRecords")||"[]");
+  records = Array.isArray(saved)?saved:[];
+} catch(e) {
   records = [];
 }
 
 clearForm();
 renderHistory();
 
-document.querySelectorAll("input").forEach(el => {
-  if (el.type !== "file") {
-    el.addEventListener("input", calculate);
+/* Recalculate displayed totals as the user types. */
+document.querySelectorAll("input").forEach(el=>{
+  if (el.type!=="file") {
+    el.addEventListener("input",calculate);
   }
 });
 
-$("save").onclick = async () => {
+/* Keep date selectable and carry forward the previous day's balance. */
+$("date").addEventListener("change",()=>{
+  editingDate = null;
+  $("save").textContent = "Save reconciliation";
+  fillStartingBalanceForDate($("date").value);
+});
+
+/* Save a daily record and automatically prepare the next date. */
+$("save").onclick = async()=>{
   const r = getData();
 
   if (!r.date) {
@@ -699,73 +754,102 @@ $("save").onclick = async () => {
     return;
   }
 
-  if ($("start").value.trim() === "") {
+  if ($("start").value.trim()==="") {
     alert("Please enter the starting drawer balance.");
     return;
   }
 
-  const idx = records.findIndex(x => x.date === r.date);
+  const idx = records.findIndex(x=>x.date===r.date);
 
-  if (idx >= 0 && editingDate !== r.date &&
-      !confirm("A record for this date already exists. Replace it?")) {
+  if (
+    idx>=0 &&
+    editingDate!==r.date &&
+    !confirm("A record for this date already exists. Replace it?")
+  ) {
     return;
   }
 
-  if (idx >= 0) records[idx] = r;
-  else records.push(r);
+  if (idx>=0) {
+    records[idx] = r;
+  } else {
+    records.push(r);
+  }
 
   persist();
   renderHistory();
 
   const savedDate = r.date;
+  const nextDate = nextCalendarDate(savedDate);
+  const nextBalance = Number(r.tomorrowOpeningTotal);
+
+  /*
+    Reset the form but retain the next date and the
+    opening balance calculated from the day just saved.
+  */
   clearForm();
 
-  $("status").textContent = "Saved " + formatDate(savedDate) + ".";
+  $("date").value = nextDate;
+  $("start").value = nextBalance.toFixed(2);
+
+  editingDate = null;
+  $("save").textContent = "Save reconciliation";
+
+  calculate();
+
+  $("status").textContent =
+    "Saved "+formatDate(savedDate)+
+    ". Next day's starting drawer balance is "+money(nextBalance)+".";
+
   await writeTextFile();
 
   if (textFileHandle) {
-    $("status").textContent = "Saved " + formatDate(savedDate) +
-      ". CashDrawer.txt has been updated.";
+    $("status").textContent =
+      "Saved "+formatDate(savedDate)+
+      ". CashDrawer.txt has been updated. Next date is "+nextDate+".";
   }
 };
 
 $("connectFile").onclick = connectTextFile;
 
-$("exportText").onclick = () => {
-  const blob = new Blob([generateTextFile()], {
+$("exportText").onclick = ()=>{
+  const blob = new Blob([generateTextFile()],{
     type:"text/plain;charset=utf-8"
   });
 
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
+
   link.href = url;
   link.download = "CashDrawer.txt";
+
   document.body.appendChild(link);
   link.click();
   link.remove();
 
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
 };
 
-$("exportBackup").onclick = () => {
-  const blob = new Blob([JSON.stringify(records, null, 2)], {
+$("exportBackup").onclick = ()=>{
+  const blob = new Blob([JSON.stringify(records,null,2)],{
     type:"application/json"
   });
 
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
+
   link.href = url;
   link.download = "cash-drawer-backup.json";
+
   document.body.appendChild(link);
   link.click();
   link.remove();
 
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
 };
 
-$("importBtn").onclick = () => $("importFile").click();
+$("importBtn").onclick = ()=>$("importFile").click();
 
-$("importFile").onchange = async e => {
+$("importFile").onchange = async e=>{
   const file = e.target.files[0];
   if (!file) return;
 
@@ -777,13 +861,14 @@ $("importFile").onchange = async e => {
     }
 
     if (confirm("Import this backup? Matching dates will be replaced.")) {
-      records = mergeByDate(records, data);
+      records = mergeByDate(records,data);
       persist();
       renderHistory();
       await writeTextFile();
+
       alert("Backup imported. The text file has been updated if connected.");
     }
-  } catch (err) {
+  } catch(err) {
     alert("This file could not be read as a cash drawer backup.");
   }
 
